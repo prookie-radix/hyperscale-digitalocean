@@ -69,6 +69,10 @@ const main = async () => {
       await actionListDashboards();
       break;
 
+    case 'list-loads':
+      await actionListLoads();
+      break;
+
     case 'price':
       await actionPrice();
       break;
@@ -156,17 +160,34 @@ async function actionList() {
     console.log('No droplets present.');
     return;
   }
+}
+
+async function actionListLoads() {
+  const sshPubKeyFile = process.argv?.[3] ?? '~/.ssh/id_ed25519';
+
+  console.log('Loading list of droplets...');
+
+  const droplets = await getActiveDroplets();
+
+  console.log('Current droplet count: ' + droplets.length);
+
+  if (droplets.length < 1) {
+    console.log('No droplets present.');
+    return;
+  }
 
   console.log('Getting load values...');
 
-  for(let i = 0; i < table.length; ++i) {
+  for(let i = 0; i < droplets.length; ++i) {
     try {
-      const uptime = await executeSSHCommand(table[i].ip, 'uptime');
-      console.log(`#${i} [${table[i].name}]: ` + uptime);
+      const ipPublic = droplets[i].networks.v4.filter(network => network.type === 'public').map(network => network.ip_address)?.[0];
+
+      const uptime = await executeSSHCommand(ipPublic, 'uptime', sshPubKeyFile);
+      console.log(`#${i} [${droplets[i].name}]: ` + uptime);
     }
     catch (e) {
       // @TODO: check if -v is set, the display error
-      console.log(`#${i} [${table[i].name}]: connection error`);
+      console.log(`#${i} [${droplets[i].name}]: connection error`);
     }
   }
 }
@@ -239,8 +260,8 @@ function getDashboardUrl(ip) {
 
 
 
-async function executeSSHCommand(ip, command) {
-  const sshCommand = `ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 -o IdentitiesOnly=yes -i ~/.ssh/id_ed25519 root@${ip} "${command}"`;
+async function executeSSHCommand(ip, command, sshPubKeyFile) {
+  const sshCommand = `ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 -o IdentitiesOnly=yes -i ${sshPubKeyFile} root@${ip} "${command}"`;
 
   return new Promise((resolve, reject) => {
     exec(sshCommand, (error, stdout, stderr) => {
