@@ -24,6 +24,10 @@ The token needs accesst to some scopes, which still need to be documented here. 
 npm install
 ```
 
+# Usage example
+
+See [usage-example.txt](usage-example.txt).
+
 # Available commands
 
 ## create

@@ -1,0 +1,93 @@
+% node hyperscale-do-api.js list
+Loading list of droplets...
+Current droplet count: 0
+┌─────────┐
+│ (index) │
+├─────────┤
+└─────────┘
+No droplets present.
+
+% node hyperscale-do-api.js create 5
+Loading your SSH key fingerprints...
+Creation config:
+{
+  "names": [
+    "radix-hyperscale-0f04d9a31458d345",
+    "radix-hyperscale-4eb777cac93b4123",
+    "radix-hyperscale-7ec288d45efb212b",
+    "radix-hyperscale-f544c89a825df8d2",
+    "radix-hyperscale-29fb336c9bf5826f"
+  ],
+  "region": "fra",
+  "size": "c-8",
+  "image": "ubuntu-24-10-x64",
+  "tags": [
+    "radix-hyperscale"
+  ],
+  "ssh_keys": [
+    "ab:cd:ef:01:23:45:67:89:9a:bc:de:f0:12:34:56:78",
+    "12:34:56:78:9a:bc:de:f0:ab:cd:ef:01:23:45:67:89"
+  ],
+  "monitoring": true,
+  "user_data": "#cloud-config [...]",
+  "with_droplet_agent": true
+}
+Creating droplets...
+[{"id":472237727,"name":"radix-hyperscale-7ec288d45efb212b","memory":16384,"vcpus" ... ]
+
+% node hyperscale-do-api.js list
+Loading list of droplets...
+Current droplet count: 5
+┌─────────┬─────────────────────────────────────┬────────┬───────┬──────┬──────────┬────────────────────────┬────────────────────┬───────┬────────┬───────────────────┬────────────────────────────────────────────────────┐
+│ (index) │ name                                │ memory │ vcpus │ disk │ status   │ created_at             │ image              │ size  │ region │ ip                │ dashboard                                          │
+├─────────┼─────────────────────────────────────┼────────┼───────┼──────┼──────────┼────────────────────────┼────────────────────┼───────┼────────┼───────────────────┼────────────────────────────────────────────────────┤
+│ 0       │ 'radix-hyperscale-7ec288d45efb212b' │ 16384  │ 8     │ 100  │ 'active' │ '2025-01-25T21:25:54Z' │ 'ubuntu-24-10-x64' │ 'c-8' │ 'fra1' │ '165.232.127.188' │ 'http://165.232.127.188:8080/dashboard/index.html' │
+│ 1       │ 'radix-hyperscale-29fb336c9bf5826f' │ 16384  │ 8     │ 100  │ 'active' │ '2025-01-25T21:25:54Z' │ 'ubuntu-24-10-x64' │ 'c-8' │ 'fra1' │ '159.89.6.200'    │ 'http://159.89.6.200:8080/dashboard/index.html'    │
+│ 2       │ 'radix-hyperscale-0f04d9a31458d345' │ 16384  │ 8     │ 100  │ 'active' │ '2025-01-25T21:25:54Z' │ 'ubuntu-24-10-x64' │ 'c-8' │ 'fra1' │ '159.89.12.5'     │ 'http://159.89.12.5:8080/dashboard/index.html'     │
+│ 3       │ 'radix-hyperscale-f544c89a825df8d2' │ 16384  │ 8     │ 100  │ 'active' │ '2025-01-25T21:25:54Z' │ 'ubuntu-24-10-x64' │ 'c-8' │ 'fra1' │ '165.232.118.240' │ 'http://165.232.118.240:8080/dashboard/index.html' │
+│ 4       │ 'radix-hyperscale-4eb777cac93b4123' │ 16384  │ 8     │ 100  │ 'active' │ '2025-01-25T21:25:54Z' │ 'ubuntu-24-10-x64' │ 'c-8' │ 'fra1' │ '159.89.101.77'   │ 'http://159.89.101.77:8080/dashboard/index.html'   │
+└─────────┴─────────────────────────────────────┴────────┴───────┴──────┴──────────┴────────────────────────┴────────────────────┴───────┴────────┴───────────────────┴────────────────────────────────────────────────────┘
+
+% node hyperscale-do-api.js list-dashboards
+http://165.232.127.188:8080/dashboard/index.html
+http://159.89.6.200:8080/dashboard/index.html
+http://159.89.12.5:8080/dashboard/index.html
+http://165.232.118.240:8080/dashboard/index.html
+http://159.89.101.77:8080/dashboard/index.html
+
+% node hyperscale-do-api.js list-loads ~/.ssh/id_ed25519
+Loading list of droplets...
+Current droplet count: 5
+Getting load values...
+#0 [radix-hyperscale-7ec288d45efb212b]: 21:27:17 up 1 min,  2 users,  load average: 0.17, 0.06, 0.02
+#1 [radix-hyperscale-29fb336c9bf5826f]: 21:27:18 up 1 min,  2 users,  load average: 0.04, 0.02, 0.00
+#2 [radix-hyperscale-0f04d9a31458d345]: 21:27:20 up 1 min,  2 users,  load average: 0.09, 0.04, 0.01
+#3 [radix-hyperscale-f544c89a825df8d2]: 21:27:21 up 1 min,  2 users,  load average: 0.08, 0.03, 0.01
+#4 [radix-hyperscale-4eb777cac93b4123]: 21:27:23 up 1 min,  2 users,  load average: 0.12, 0.05, 0.01
+
+% node hyperscale-do-api.js price     
+Loading list of droplets...
+Current droplet count: 5
+Current price monthly: 840,00 €
+Current price hourly:  1,25 €
+Only showing costs for droplets with tag 'radix-hyperscale'!
+
+% node hyperscale-do-api.js delete
+204
+
+% node hyperscale-do-api.js price 
+Loading list of droplets...
+Current droplet count: 0
+Current price monthly: 0,00 €
+Current price hourly:  0,00 €
+Only showing costs for droplets with tag 'radix-hyperscale'!
+
+% node hyperscale-do-api.js list 
+Loading list of droplets...
+Current droplet count: 0
+┌─────────┐
+│ (index) │
+├─────────┤
+└─────────┘
+No droplets present.
+
