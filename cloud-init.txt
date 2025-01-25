@@ -1,0 +1,92 @@
+#cloud-config
+package_update: false
+package_upgrade: false
+
+packages:
+  - openjdk-21-jre-headless
+  - wget
+  - zip
+
+runcmd:
+  - INSTANCES_COUNT=1
+
+  - FILE1_URL="https://projektvorschau.net/hyperscale/hyperscale.jar"
+  - FILE2_URL="https://projektvorschau.net/hyperscale/default.config"
+  - FILE3_URL="https://projektvorschau.net/hyperscale/ipbuffers-local.sh"
+
+  - mkdir -p /opt/app
+
+  - wget -O /opt/app/hyperscale.jar $FILE1_URL
+  - wget -O /opt/app/default.config $FILE2_URL
+  - wget -O /opt/app/ipbuffers-local.sh $FILE3_URL
+
+  - chmod +x /opt/app/hyperscale.jar
+  - chmod +x /opt/app/ipbuffers-local.sh
+
+  - /opt/app/ipbuffers-local.sh
+
+  # Dynamically create systemd service files and modify configs
+  - |
+    for i in $(seq 0 $((INSTANCES_COUNT-1))); do
+      INSTANCE_DIR="/opt/app/instance_$i"
+      mkdir -p "$INSTANCE_DIR"
+      cp /opt/app/hyperscale.jar "$INSTANCE_DIR/"
+      cp /opt/app/default.config "$INSTANCE_DIR/"
+
+      # Update the config with unique ports
+      echo "api.port=$((8080 + i))" >> "$INSTANCE_DIR/default.config"
+      echo "websocket.port=$((8880 + i))" >> "$INSTANCE_DIR/default.config"
+      echo "network.port=$((30000 + i))" >> "$INSTANCE_DIR/default.config"
+
+      # Create systemd service file
+      cat <<EOF > /etc/systemd/system/cassandra$i.service
+        [Unit]
+        Description=Cassandra Service #$i
+        After=network.target
+
+        [Service]
+        ExecStart=/usr/bin/java -Xms8G -Xmx8G -jar $INSTANCE_DIR/hyperscale.jar -console
+        Restart=always
+        User=root
+        WorkingDirectory=$INSTANCE_DIR
+
+        StandardOutput=journal
+        StandardError=journal
+
+        [Install]
+        WantedBy=multi-user.target
+    EOF
+    done
+
+  # Reload systemd, enable, and start the services
+  - systemctl daemon-reload
+  - |
+    for i in $(seq 0 $((INSTANCES_COUNT-1))); do
+      systemctl enable cassandra$i.service
+      systemctl start cassandra$i.service
+    done
+
+  # Add helper function for checking status
+  - |
+    cat <<EOF > /etc/profile.d/cassandra_functions.sh
+    cassandra_status() {
+      for i in \$(seq 0 \$((${INSTANCES_COUNT}-1))); do
+        systemctl status "cassandra\$i.service"
+      done
+    }
+    EOF
+
+
+#############
+# Access dashboard(s):
+# http://11.22.33.44:8080/dashboard/index.html
+# instances will be available under 8080, 8081, 8082, ...
+#############
+
+
+#############
+# Logfile:
+# > cat /var/log/cloud-init-output.log
+# cloud-init script:
+# > cat /var/lib/cloud/instance/scripts/runcmd
+#############

@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "dots-wrapper": "^3.11.14",
+    "uuid": "^11.0.5"
+  }
+}
