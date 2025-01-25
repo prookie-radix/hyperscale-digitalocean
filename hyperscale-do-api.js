@@ -163,7 +163,7 @@ async function actionList() {
 }
 
 async function actionListLoads() {
-  const sshPubKeyFile = process.argv?.[3] ?? '~/.ssh/id_ed25519';
+  const sshKeyFile = process.argv?.[3] ?? '~/.ssh/id_ed25519';
 
   console.log('Loading list of droplets...');
 
@@ -182,7 +182,7 @@ async function actionListLoads() {
     try {
       const ipPublic = droplets[i].networks.v4.filter(network => network.type === 'public').map(network => network.ip_address)?.[0];
 
-      const uptime = await executeSSHCommand(ipPublic, 'uptime', sshPubKeyFile);
+      const uptime = await executeSSHCommand(ipPublic, 'uptime', sshKeyFile);
       console.log(`#${i} [${droplets[i].name}]: ` + uptime);
     }
     catch (e) {
@@ -264,8 +264,8 @@ function getDashboardUrl(ip) {
 
 
 
-async function executeSSHCommand(ip, command, sshPubKeyFile) {
-  const sshCommand = `ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 -o IdentitiesOnly=yes -i ${sshPubKeyFile} root@${ip} "${command}"`;
+async function executeSSHCommand(ip, command, sshKeyFile) {
+  const sshCommand = `ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 -o IdentitiesOnly=yes -i ${sshKeyFile} root@${ip} "${command}"`;
 
   return new Promise((resolve, reject) => {
     exec(sshCommand, (error, stdout, stderr) => {
