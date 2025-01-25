@@ -202,6 +202,8 @@ async function actionListDashboards() {
 async function actionPrice() {
   const currencyFormatter = new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'EUR'});
 
+  console.log('Loading list of droplets...');
+
   const droplets = await getActiveDroplets();
 
   const priceHourly = droplets.reduce((sum, droplet) => {
@@ -214,6 +216,8 @@ async function actionPrice() {
   console.log('Current droplet count: ' + droplets.length);
   console.log('Current price monthly: ' + currencyFormatter.format(priceMonthly));
   console.log('Current price hourly:  ' + currencyFormatter.format(priceHourly));
+
+  console.log(`Only showing costs for droplets with tag '${dropletTag}'!`);
 }
 
 async function actionDelete() {
