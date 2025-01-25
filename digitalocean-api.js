@@ -10,6 +10,9 @@ system failure, downtime, security breaches, or other consequences that may resu
 from running this script. Use this script at your own risk.
 
 You should thoroughly test this script in a safe, non-production environment before using it in any live systems.
+
+Make sure to regularly check your Digitalocean account for droplets that you do not want to run anymore
+to avoid unexpected costs.
 */
 
 
