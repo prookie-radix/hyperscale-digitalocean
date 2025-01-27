@@ -17,6 +17,7 @@ to avoid unexpected costs.
 
 
 const fs = require('fs');
+const https = require('https');
 const crypto = require('crypto');
 const {exec} = require('child_process');
 const readline = require('readline');
@@ -67,6 +68,10 @@ const main = async () => {
 
     case 'list-dashboards':
       await actionListDashboards();
+      break;
+
+    case 'list-stats':
+      await actionListStats();
       break;
 
     case 'list-loads':
@@ -162,6 +167,59 @@ async function actionList() {
   }
 }
 
+async function actionListStats() {
+  console.log('Loading list of droplets...');
+
+  const droplets = await getActiveDroplets();
+
+  const table = [];
+
+  for(let i = 0; i < droplets.length; ++i) {
+    try {
+      const droplet = droplets[i];
+
+      const ipPublic = droplet.networks.v4.filter(network => network.type === 'public').map(network => network.ip_address)?.[0];
+
+      const stats = await loadNodeStats(ipPublic);
+
+      table.push({
+        'name': droplet.name,
+        'memory': droplet.memory,
+        'vcpus': droplet.vcpus,
+        'disk': droplet.disk,
+        'status': droplet.status,
+        'region': droplet.region.slug,
+        'ip': ipPublic,
+        'stat_synced': stats.synced,
+        'stat_head_height': stats.head.height,
+        'stat_head_timestamp': stats.head.timestamp ? (new Date(stats.head.timestamp).toISOString()) : undefined,
+        'shardGroup': stats.shardGroup,
+      });
+    }
+    catch (e) {
+      // @TODO: check if -v is set, the display error
+      console.log(`#${i} [${droplets[i].name}]: connection error: ${e}`);
+    }
+  }
+
+  console.log('Current droplet count: ' + droplets.length);
+
+  console.table(table);
+
+  if (droplets.length < 1) {
+    console.log('No droplets present.');
+    return;
+  }
+}
+
+
+async function actionListDashboards() {
+  const droplets = await getActiveDroplets();
+  droplets.forEach(droplet => {
+    console.log(droplet.networks.v4.filter(network => network.type === 'public').map(network => getDashboardUrl(network.ip_address))?.[0]);
+  });
+}
+
 async function actionListLoads() {
   const sshKeyFile = process.argv?.[3] ?? '~/.ssh/id_ed25519';
 
@@ -190,13 +248,6 @@ async function actionListLoads() {
       console.log(`#${i} [${droplets[i].name}]: connection error`);
     }
   }
-}
-
-async function actionListDashboards() {
-  const droplets = await getActiveDroplets();
-  droplets.forEach(droplet => {
-    console.log(droplet.networks.v4.filter(network => network.type === 'public').map(network => getDashboardUrl(network.ip_address))?.[0]);
-  });
 }
 
 async function actionPrice() {
@@ -261,8 +312,37 @@ function getDashboardUrl(ip) {
   return 'http://' + ip + ':8080/dashboard/index.html';
 }
 
+function getApiUrl(ip) {
+  return 'http://' + ip + ':8080/api';
+}
 
 
+
+async function loadNodeStats(ip) {
+  try {
+    const url = getApiUrl(ip) + '/node';
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const jsonResponse = await response.json();
+
+    return {
+      synced: jsonResponse?.node?.synced,
+      head: {
+        height: jsonResponse?.node?.head?.height,
+        timestamp: jsonResponse?.node?.head?.timestamp,
+      },
+      shardGroup: jsonResponse?.node?.shard_group,
+    };
+  } catch (error) {
+    // console.error('Error:', error.message);
+    throw error;
+  }
+}
 
 async function executeSSHCommand(ip, command, sshKeyFile) {
   const sshCommand = `ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 -o IdentitiesOnly=yes -i ${sshKeyFile} root@${ip} "${command}"`;
