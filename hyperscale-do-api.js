@@ -118,7 +118,7 @@ async function actionCreate() {
       names,
       region,
       size,
-      image: "ubuntu-24-10-x64", // string
+      image: "ubuntu-24-04-x64", // string
       tags: [dropletTag],
       ssh_keys: availableSshKeyFingerprints,
       monitoring: true,
