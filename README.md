@@ -52,6 +52,12 @@ Displays a table containing details for every droplet having the tag `radix-hype
 node hyperscale-do-api.js list
 ```
 
+## list-stats
+Displays a table containing details including some node stats for every droplet having the tag `radix-hyperscale` in your account.
+```
+node hyperscale-do-api.js list-stats
+```
+
 ## list-dashboards
 Displays a simple list of Hyperscale dashboard URLs for every droplet having the tag `radix-hyperscale` in your account.
 ```

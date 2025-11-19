@@ -20,6 +20,12 @@ runcmd:
   - wget -O /opt/app/default.config $FILE2_URL
   - wget -O /opt/app/ipbuffers-local.sh $FILE3_URL
 
+#  - |
+#    if [ ! -s /opt/app/hyperscale.jar ] || [ ! -s /opt/app/default.config ]; then
+#      echo "Error: Required files not downloaded or empty. Shutting down..."
+#      shutdown -h now
+#    fi
+
   - chmod +x /opt/app/hyperscale.jar
   - chmod +x /opt/app/ipbuffers-local.sh
 
