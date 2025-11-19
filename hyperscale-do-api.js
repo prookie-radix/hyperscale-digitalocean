@@ -85,6 +85,10 @@ const main = async () => {
     case 'delete':
       await actionDelete();
       break;
+
+    default:
+      console.error(`Unknown command supplied: "${action}"`);
+      break;
   }
   
 };
@@ -180,7 +184,11 @@ async function actionListStats() {
 
       const ipPublic = droplet.networks.v4.filter(network => network.type === 'public').map(network => network.ip_address)?.[0];
 
-      const stats = await loadNodeStats(ipPublic);
+      const stats = {
+        ...(await loadNodeStats(ipPublic)),
+        ...(await loadLedgerStats(ipPublic)),
+        ...(await loadNetworkStats(ipPublic)),
+      };
 
       table.push({
         'name': droplet.name,
@@ -194,6 +202,9 @@ async function actionListStats() {
         'stat_head_height': stats.head.height,
         'stat_head_timestamp': stats.head.timestamp ? (new Date(stats.head.timestamp).toISOString()) : undefined,
         'shardGroup': stats.shardGroup,
+        'connections': stats.network.connections,
+        'finality_consensus': stats.ledger.finality.consensus,
+        'finality_client': stats.ledger.finality.client,
       });
     }
     catch (e) {
@@ -337,6 +348,55 @@ async function loadNodeStats(ip) {
         timestamp: jsonResponse?.node?.head?.timestamp,
       },
       shardGroup: jsonResponse?.node?.shard_group,
+    };
+  } catch (error) {
+    // console.error('Error:', error.message);
+    throw error;
+  }
+}
+
+async function loadNetworkStats(ip) {
+  try {
+    const url = getApiUrl(ip) + '/network/statistics';
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const jsonResponse = await response.json();
+
+    return {
+      network: {
+        connections: jsonResponse?.statistics?.connections,
+      },
+    };
+  } catch (error) {
+    // console.error('Error:', error.message);
+    throw error;
+  }
+}
+
+async function loadLedgerStats(ip) {
+  try {
+    const url = getApiUrl(ip) + '/ledger/statistics';
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const jsonResponse = await response.json();
+
+    return {
+      ledger: {
+        finality: {
+          consensus: jsonResponse?.statistics?.throughput?.finality?.consensus,
+          client: jsonResponse?.statistics?.throughput?.finality?.client,
+        },
+      },
     };
   } catch (error) {
     // console.error('Error:', error.message);
