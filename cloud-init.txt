@@ -10,8 +10,8 @@ packages:
 runcmd:
   - INSTANCES_COUNT=1
 
-  - FILE1_URL="https://projektvorschau.net/hyperscale/hyperscale.jar"
-  - FILE2_URL="https://projektvorschau.net/hyperscale/default.config"
+  - FILE1_URL="https://artq.ddns.net/hyperscale/hyperscale.jar"
+  - FILE2_URL="https://artq.ddns.net/hyperscale/default.config"
   - FILE3_URL="https://projektvorschau.net/hyperscale/ipbuffers-local.sh"
 
   - mkdir -p /opt/app
