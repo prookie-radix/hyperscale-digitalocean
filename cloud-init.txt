@@ -39,10 +39,11 @@ runcmd:
       cp /opt/app/hyperscale.jar "$INSTANCE_DIR/"
       cp /opt/app/default.config "$INSTANCE_DIR/"
 
-      # Update the config with unique ports
-      echo "api.port=$((8080 + i))" >> "$INSTANCE_DIR/default.config"
-      echo "websocket.port=$((8880 + i))" >> "$INSTANCE_DIR/default.config"
-      echo "network.port=$((30000 + i))" >> "$INSTANCE_DIR/default.config"
+      # Update the config with unique ports (prepend a newline first)
+      printf '\n' >> "$INSTANCE_DIR/default.config"
+      printf 'api.port=%s\n' "$((8080 + i))" >> "$INSTANCE_DIR/default.config"
+      printf 'websocket.port=%s\n' "$((8880 + i))" >> "$INSTANCE_DIR/default.config"
+      printf 'network.port=%s\n' "$((30000 + i))" >> "$INSTANCE_DIR/default.config"
 
       # Create systemd service file
       cat <<EOF > /etc/systemd/system/cassandra$i.service
