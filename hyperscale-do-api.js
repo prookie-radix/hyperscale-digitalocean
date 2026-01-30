@@ -121,6 +121,7 @@ async function actionCreate() {
       image: "ubuntu-24-04-x64", // string
       tags: [dropletTag],
       ssh_keys: availableSshKeyFingerprints,
+      ipv6: false,
       monitoring: true,
       user_data: fs.readFileSync('./cloud-init.txt', 'utf8').trim(),
       with_droplet_agent: true,
