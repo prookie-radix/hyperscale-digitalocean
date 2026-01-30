@@ -69,7 +69,7 @@ runcmd:
         After=network.target
 
         [Service]
-        ExecStart=/usr/bin/java -Xms12G -Xmx12G -jar $INSTANCE_DIR/hyperscale.jar -console
+        ExecStart=/usr/bin/java -Xms12G -Xmx12G -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -jar $INSTANCE_DIR/hyperscale.jar -console
         Restart=always
         User=root
         WorkingDirectory=$INSTANCE_DIR
