@@ -13,6 +13,12 @@ You should thoroughly test this script in a safe, non-production environment bef
 Make sure to regularly check your Digitalocean account for droplets that you do not want to run anymore
 to avoid unexpected costs.
 
+
+> [!IMPORTANT]
+> ### Linode support
+> [dazligth](https://github.com/dazligth) was kind enough to extend the script to support Linode as an additional hosting provider.  
+> You can find the repository here: https://github.com/dazligth/hyperscale-multi-hosters
+
 # DigitalOcean API token
 Provide your API token by creating the file `do-key.txt` and placing the token in it.
 
